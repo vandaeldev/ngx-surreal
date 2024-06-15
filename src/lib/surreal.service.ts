@@ -1,11 +1,12 @@
 import { computed, Injectable } from '@angular/core';
 import { from } from 'rxjs';
 import { Surreal } from 'surrealdb.js';
+import type { SurrealConfig } from './surreal.config';
 
 @Injectable({
   providedIn: 'root'
 })
-export class NgxSurrealService {
+export class SurrealService {
   /**
    * The connection object to the Surreal database.
    */
@@ -28,8 +29,8 @@ export class NgxSurrealService {
 
   private db = new Surreal();
 
-  constructor() {
-    this.connect();
+  constructor(private config: SurrealConfig) {
+    this.connect(config);
   }
 
   /**
@@ -214,18 +215,7 @@ export class NgxSurrealService {
     return from(this.db.version());
   }
 
-  private async connect() {
-    const url = new URL('');
-    await this.db.connect(url, {
-      namespace: 'test',
-      database: 'test',
-      auth: {
-        namespace: 'test',
-        database: 'test',
-        scope: 'user',
-        username: 'root',
-        password: 'root'
-      }
-    });
+  private async connect({ url, ...options }: SurrealConfig) {
+    await this.db.connect(new URL(url), options);
   }
 }

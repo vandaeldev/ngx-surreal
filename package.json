@@ -1,0 +1,18 @@
+{
+  "name": "ngx-surreal",
+  "version": "0.1.0",
+  "peerDependencies": {
+    "@angular/common": "^18.0.0",
+    "@angular/core": "^18.0.0",
+    "rxjs": "^7.8.1"
+  },
+  "dependencies": {
+    "surrealdb.js": "1.0.0-beta.9",
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false,
+  "author": "Dominic van Dael <vandael.dev@gmail.com>",
+  "devDependencies": {
+    "rxjs": "^7.8.1"
+  }
+}

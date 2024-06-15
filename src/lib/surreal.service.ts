@@ -1,6 +1,7 @@
-import { computed, Injectable } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import { from } from 'rxjs';
 import { Surreal } from 'surrealdb.js';
+import { SURREAL_CONFIG_TOKEN } from './surreal.module';
 import type { SurrealConfig } from './surreal.config';
 
 @Injectable({
@@ -28,9 +29,10 @@ export class SurrealService {
   public status = computed(() => this.db.status);
 
   private db = new Surreal();
+  private config = inject(SURREAL_CONFIG_TOKEN);
 
-  constructor(private config: SurrealConfig) {
-    this.connect(config);
+  constructor() {
+    this.connect();
   }
 
   /**
@@ -215,7 +217,8 @@ export class SurrealService {
     return from(this.db.version());
   }
 
-  private async connect({ url, ...options }: SurrealConfig) {
+  private async connect() {
+    const { url, ...options } = this.config;
     await this.db.connect(new URL(url), options);
   }
 }

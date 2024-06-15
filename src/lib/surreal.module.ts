@@ -2,7 +2,7 @@ import { InjectionToken, ModuleWithProviders, NgModule } from '@angular/core';
 import { SurrealService } from './surreal.service';
 import type { SurrealConfig } from './surreal.config';
 
-export const SurrealFactory = (config: SurrealConfig) => new SurrealService(config);
+export const SurrealFactory = () => new SurrealService();
 
 export const SURREAL_CONFIG_TOKEN = new InjectionToken<SurrealConfig>('__SURREAL_CONFIG__');
 

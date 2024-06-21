@@ -1,24 +1,139 @@
-# NgxSurreal
+# ngx-surreal
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.0.
+- [Introduction](#introduction)
+- [Compatibility](#compatibility)
+- [Installation](#installation)
+- [Initialization](#initialization)
+  - [With standalone bootstrap](#with-standalone-bootstrap)
+  - [With NgModule bootstrap](#with-ngmodule-bootstrap)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Links](#links)
 
-## Code scaffolding
+## Introduction
 
-Run `ng generate component component-name --project ngx-surreal` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngx-surreal`.
-> Note: Don't forget to add `--project ngx-surreal` or else it will be added to the default project in your `angular.json` file. 
+This package is a simple wrapper around the [SurrealDB JavaScript SDK](https://www.npmjs.com/package/surrealdb.js). It exposes the same methods as the SDK, only converted to [RxJS `Observable`s](https://rxjs.dev/guide/observable) to make it easier to use within a standard Angular application.
+On service initialization, it sets up a single connection with the configuration supplied in the `SurrealModule.forRoot()` method.
 
-## Build
+## Compatibility
 
-Run `ng build ngx-surreal` to build the project. The build artifacts will be stored in the `dist/` directory.
+|ngx-surreal|Angular|SurrealDB   |
+|-----------|-------|------------|
+|^0.1.2     |^18.0.0|^1.5.0      |
 
-## Publishing
+## Installation
 
-After building your library with `ng build ngx-surreal`, go to the dist folder `cd dist/ngx-surreal` and run `npm publish`.
+```sh
+# npm
+npm install ngx-surreal
 
-## Running unit tests
+# pnpm
+pnpm add ngx-surreal
 
-Run `ng test ngx-surreal` to execute the unit tests via [Karma](https://karma-runner.github.io).
+# yarn
+yarn add ngx-surrreal
 
-## Further help
+# bun
+bun add ngx-surreal
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Initialization
+
+This package exposes a module called `SurrealModule` with only one method: `forRoot()`. The `forRoot()` method takes an object of type `SurrealConfig` with SurrealDB connection options.
+
+### With standalone bootstrap
+
+```ts
+import { importProvidersFrom, type ApplicationConfig } from '@angular/core';
+import { SurrealModule, type SurrealConfig } from 'ngx-surreal';
+import { routes } from './app.routes';
+
+const surrealConfig: SurrealConfig = {
+  url: 'http://localhost:8000/rpc',
+  namespace: 'test',
+  database: 'test'
+};
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+    importProvidersFrom(SurrealModule.forRoot(surrealConfig))
+  ]
+};
+```
+
+### With NgModule bootstrap
+
+```ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { SurrealModule, type SurrealConfig } from 'ngx-surreal';
+import { AppComponent } from './app.component';
+
+const surrealConfig: SurrealConfig = {
+  url: 'http://localhost:8000/rpc',
+  namespace: 'test',
+  database: 'test'
+};
+
+@NgModule({
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    SurrealModule.forRoot(surrealConfig)
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule {}
+```
+
+## Configuration
+
+The type definition for `SurrealConfig` is as follows:
+
+```ts
+import type { ConnectionOptions } from 'surrealdb.js';
+
+export type SurrealConfig = ConnectionOptions & { url: string };
+```
+
+See for all connection options the [definition for the `ConnectionOptions` type](https://github.com/surrealdb/surrealdb.js/blob/main/src/types.ts#L195).
+
+## Usage
+
+```ts
+import { Component, signal, type OnInit } from '@angular/core';
+import { SurrealService } from 'ngx-surreal';
+
+export class ExampleComponent implements OnInit {
+  public readonly items = signal([]);
+
+  private readonly surrealService = inject(SurrealService);
+  // or
+  constructor(private readonly surrealService: SurrealService) {}
+
+  public ngOnInit() {
+    console.log(this.surrealService.status());
+    this.surrealService.select('example' as any).subscribe(records => this.items.set(records));
+  }
+
+  public updateItem(id: string, updates: Record<string, unknown>) {
+    this.surrealService.update(`example:${id}` as any, updates).subscribe(console.dir);
+  }
+
+  public deleteItem(id: string) {
+    this.surrealService.delete(`example:${id}` as any).subscribe(console.dir);
+  }
+
+  public queryAll() {
+    this.surrealService.query('select * from example;').subscribe(console.dir);
+  }
+}
+```
+
+See for all available methods the [SurrealDB JavaScript SDK](https://surrealdb.com/docs/sdk/javascript/setup#sdk-methods).
+
+## Links
+
+- [Angular docs](https://angular.dev/overview)
+- [SurrealDB docs](https://surrealdb.com/docs/surrealdb/)

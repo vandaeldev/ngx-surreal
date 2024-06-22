@@ -19,7 +19,7 @@ On service initialization, it sets up a single connection with the configuration
 
 |ngx-surreal|Angular |SurrealDB   |
 |-----------|--------|------------|
-|^0.2.0     |>=18.0.0|^1.0.0      |
+|^0.2.1     |>=18.0.0|^1.0.0      |
 
 ## Installation
 
@@ -103,7 +103,7 @@ See for all connection options the [definition for the `ConnectionOptions` type]
 
 ```ts
 import { Component, signal, type OnInit } from '@angular/core';
-import { SurrealService, RecordId } from 'ngx-surreal';
+import { SurrealService, RecordId, PreparedQuery } from 'ngx-surreal';
 
 export class ExampleComponent implements OnInit {
   public readonly items = signal([]);

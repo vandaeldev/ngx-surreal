@@ -1,6 +1,7 @@
 {
   "name": "ngx-surreal",
   "description": "Lightweight Angular wrapper for the SurrealDB JavaScript SDK",
+  "keywords": ["surrealdb", "angular", "database", "client"],
   "version": "0.1.2",
   "engines": {
     "node": ">=18.0.0"

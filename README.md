@@ -12,14 +12,14 @@
 
 ## Introduction
 
-This package is a simple wrapper around the [SurrealDB JavaScript SDK](https://www.npmjs.com/package/surrealdb.js). It exposes the same methods as the SDK, only converted to [RxJS `Observable`s](https://rxjs.dev/guide/observable) to make it easier to use within a standard Angular application.
+This package is a simple wrapper around the [SurrealDB JavaScript SDK](https://www.npmjs.com/package/surrealdb.js). It exposes almost all of the same methods as the SDK, only converted to [RxJS `Observable`s](https://rxjs.dev/guide/observable) to make it easier to use within a standard Angular application.
 On service initialization, it sets up a single connection with the configuration supplied in the `SurrealModule.forRoot()` method.
 
 ## Compatibility
 
-|ngx-surreal|Angular|SurrealDB   |
-|-----------|-------|------------|
-|^0.1.2     |^18.0.0|^1.5.0      |
+|ngx-surreal|Angular |SurrealDB   |
+|-----------|--------|------------|
+|^0.2.0     |>=18.0.0|^1.0.0      |
 
 ## Installation
 
@@ -103,10 +103,11 @@ See for all connection options the [definition for the `ConnectionOptions` type]
 
 ```ts
 import { Component, signal, type OnInit } from '@angular/core';
-import { SurrealService } from 'ngx-surreal';
+import { SurrealService, RecordId } from 'ngx-surreal';
 
 export class ExampleComponent implements OnInit {
   public readonly items = signal([]);
+  public readonly singleItem = signal({});
 
   private readonly surrealService = inject(SurrealService);
   // or
@@ -114,24 +115,44 @@ export class ExampleComponent implements OnInit {
 
   public ngOnInit() {
     console.log(this.surrealService.status());
-    this.surrealService.select('example' as any).subscribe(records => this.items.set(records));
+  }
+
+  public signup(email: string, password: string) {
+    this.surrealService.signup({scope: 'user', email, password}).subscribe(console.log);
+  }
+
+  public signin(email: string, password: string) {
+    this.surrealService.signin({scope: 'user', email, password}).subscribe(console.log);
+  }
+
+  public fetchAllItems() {
+    this.surrealService.select('example').subscribe(records => this.items.set(records));
+  }
+
+  public fetchItem(id: string) {
+    const recordId = new RecordId('example', id);
+    this.surrealService.select(recordId).subscribe(record => this.singleItem.set(record));
   }
 
   public updateItem(id: string, updates: Record<string, unknown>) {
-    this.surrealService.update(`example:${id}` as any, updates).subscribe(console.dir);
+    this.surrealService.update(`example:${id}`, updates).subscribe(console.dir);
   }
 
   public deleteItem(id: string) {
-    this.surrealService.delete(`example:${id}` as any).subscribe(console.dir);
+    const recordId = new RecordId('example', id);
+    this.surrealService.delete(recordId).subscribe(console.dir);
   }
 
-  public queryAll() {
-    this.surrealService.query('select * from example;').subscribe(console.dir);
+  public queryAllItems() {
+    this.surrealService.query('select * from example; select * from type::table($table)', {table: 'example2'}).subscribe(console.dir);
+    // or
+    const query = new PreparedQuery('select * from type::table($table)', {table: 'example'});
+    this.surrealService.query(query).subscribe(console.dir);
   }
 }
 ```
 
-See for all available methods the [SurrealDB JavaScript SDK](https://surrealdb.com/docs/sdk/javascript/setup#sdk-methods).
+See for more examples and all available methods the [SurrealDB JavaScript SDK](https://surrealdb.com/docs/sdk/javascript/setup#sdk-methods).
 
 ## Links
 

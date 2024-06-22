@@ -12,7 +12,7 @@
 
 ## Introduction
 
-This package is a simple wrapper around the [SurrealDB JavaScript SDK](https://www.npmjs.com/package/surrealdb.js). It exposes almost all of the same methods as the SDK, only converted to [RxJS `Observable`s](https://rxjs.dev/guide/observable) to make it easier to use within a standard Angular application.
+This package is a simple wrapper around the [SurrealDB JavaScript SDK](https://www.npmjs.com/package/surrealdb.js). It exposes almost all of the same methods as the SDK, only converted to [RxJS `Observable`s](https://rxjs.dev/guide/observable) to make it easier to use within a standard Angular application. It also re-exports some classes and types from the SDK.
 On service initialization, it sets up a single connection with the configuration supplied in the `SurrealModule.forRoot()` method.
 
 ## Compatibility
@@ -45,6 +45,7 @@ This package exposes a module called `SurrealModule` with only one method: `forR
 
 ```ts
 import { importProvidersFrom, type ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import { SurrealModule, type SurrealConfig } from 'ngx-surreal';
 import { routes } from './app.routes';
 
@@ -105,6 +106,11 @@ See for all connection options the [definition for the `ConnectionOptions` type]
 import { Component, signal, type OnInit } from '@angular/core';
 import { SurrealService, RecordId, PreparedQuery } from 'ngx-surreal';
 
+@Component({
+  selector: 'app-example',
+  templateUrl: 'example.component.html',
+  styleUrl: 'example.component.scss'
+})
 export class ExampleComponent implements OnInit {
   public readonly items = signal([]);
   public readonly singleItem = signal({});

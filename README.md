@@ -20,6 +20,7 @@ On service initialization, it sets up a single connection with the configuration
 |ngx-surreal|Angular |SurrealDB   |
 |-----------|--------|------------|
 |^0.2.1     |>=18.0.0|^1.0.0      |
+|^1.0.0     |>=18.0.0|^2.0.0      |
 
 ## Installation
 
@@ -93,12 +94,23 @@ export class AppModule {}
 The type definition for `SurrealConfig` is as follows:
 
 ```ts
-import type { ConnectionOptions } from 'surrealdb.js';
+import type { Surreal } from 'surrealdb';
 
+export type ConnectionOptions = Parameters<Surreal['connect']>[1];
 export type SurrealConfig = ConnectionOptions & { url: string };
 ```
 
-See for all connection options the [definition for the `ConnectionOptions` type](https://github.com/surrealdb/surrealdb.js/blob/main/src/types.ts#L195).
+The following options are available for configuration:
+
+```ts
+url: string;
+namespace?: string;
+database?: string;
+auth?: AnyAuth | Token;
+prepare?: (connection: Surreal) => unknown;
+versionCheck?: boolean;
+versionCheckTimeout?: number;
+```
 
 ## Usage
 
@@ -158,7 +170,7 @@ export class ExampleComponent implements OnInit {
 }
 ```
 
-See for more examples and all available methods the [SurrealDB JavaScript SDK](https://surrealdb.com/docs/sdk/javascript/setup#sdk-methods).
+See for more examples and all available methods the [SurrealDB JavaScript SDK](https://surrealdb.com/docs/sdk/javascript/core).
 
 ## Links
 

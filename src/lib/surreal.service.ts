@@ -1,8 +1,8 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { from, type Observable } from 'rxjs';
-import { type ActionResult, type Patch, Surreal, type UUID, type RecordId as _RecordId, type StringRecordId, type AnyAuth, type ScopeAuth } from 'surrealdb.js';
-import { SURREAL_CONFIG_TOKEN } from './surreal.module';
+import { type RecordId as _RecordId, type ActionResult, type AnyAuth, type Patch, type ScopeAuth, type StringRecordId, Surreal, type Uuid } from 'surrealdb';
 import type { PrettyRecord, SurrealUseOptions } from './surreal.config';
+import { SURREAL_CONFIG_TOKEN } from './surreal.module';
 
 type RecordId<Tb extends string = string> = _RecordId<Tb> | StringRecordId;
 
@@ -130,7 +130,7 @@ export class SurrealService {
    * @param callback - Callback function that receives updates.
    * @param diff - If set to true, will return a set of patches instead of complete records
    */
-  public live<Result extends Record<string, unknown> | Patch = Record<string, unknown>>(...args: Parameters<Surreal['live']>): Observable<UUID> {
+  public live<Result extends Record<string, unknown> | Patch = Record<string, unknown>>(...args: Parameters<Surreal['live']>): Observable<Uuid> {
     return from(this.db.live<Result>(...args));
   }
 
@@ -260,7 +260,7 @@ export class SurrealService {
    * Stop listening for live query responses for a uuid
    * @param queryUuid - The LQ uuid that you want to stop listening to.
    */
-  public unsubscribeLive<Result extends Record<string, unknown> | Patch = Record<string, unknown>>(queryUuid: UUID) {
+  public unsubscribeLive<Result extends Record<string, unknown> | Patch = Record<string, unknown>>(queryUuid: Uuid) {
     return from(this.db.unSubscribeLive<Result>(queryUuid, () => void 0));
   }
 

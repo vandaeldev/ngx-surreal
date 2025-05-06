@@ -1,6 +1,6 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { from, type Observable } from 'rxjs';
-import { type RecordId as _RecordId, type ActionResult, type AnyAuth, type Patch, type ScopeAuth, type StringRecordId, Surreal, type Uuid } from 'surrealdb';
+import { type RecordId as _RecordId, type ActionResult, type Patch, RecordIdRange, type StringRecordId, Surreal, Table } from 'surrealdb';
 import type { PrettyRecord, SurrealUseOptions } from './surreal.config';
 import { SURREAL_CONFIG_TOKEN } from './surreal.module';
 
@@ -61,9 +61,9 @@ export class SurrealService {
    * @param thing - The table name or the specific record ID to create.
    * @param data - The document / record data to insert.
    */
-  create<T extends PrettyRecord, U extends PrettyRecord = T>(thing: string, data?: U): Observable<ActionResult<T>[]>;
-  create<T extends PrettyRecord, U extends PrettyRecord = T>(thing: RecordId, data?: U): Observable<ActionResult<T>>;
-  public create<T extends PrettyRecord, U extends PrettyRecord = T>(thing: string & RecordId, data?: U) {
+  create<T extends PrettyRecord, U extends PrettyRecord = T>(thing: RecordId, data?: U): Observable<ActionResult<T>[]>;
+  create<T extends PrettyRecord, U extends PrettyRecord = T>(thing: Table | string, data?: U): Observable<ActionResult<T>>;
+  public create<T extends PrettyRecord, U extends PrettyRecord = T>(thing: (Table | string) & RecordId, data?: U) {
     return from(this.db.create<T, U>(thing, data));
   }
 
@@ -71,10 +71,26 @@ export class SurrealService {
    * Deletes all records in a table, or a specific record, from the database.
    * @param thing - The table name or a record ID to select.
    */
-  delete<T extends PrettyRecord>(thing: string): Observable<ActionResult<T>[]>;
-  delete<T extends PrettyRecord>(thing: RecordId): Observable<ActionResult<T>>;
-  public delete<T extends PrettyRecord>(thing: string & RecordId) {
+  delete<T extends PrettyRecord>(thing: RecordId): Observable<ActionResult<T>[]>;
+  delete<T extends PrettyRecord>(thing: RecordIdRange | Table | string): Observable<ActionResult<T>>;
+  public delete<T extends PrettyRecord>(thing: (RecordIdRange | Table | string) & RecordId) {
     return from(this.db.delete<T>(thing));
+  }
+
+  /**
+	 * Export the database and return the result as a string.
+	 * @param options - Export configuration options.
+	 */
+  public export(...args: Parameters<Surreal['export']>) {
+    return from(this.db.export(...args));
+  }
+
+  /**
+	 * Import an existing export into the database.
+	 * @param input - The data to import.
+	 */
+  public import(...args: Parameters<Surreal['import']>) {
+    return from(this.db.import(...args));
   }
 
   /**
@@ -89,16 +105,27 @@ export class SurrealService {
     return from(this.db.info<T>());
   }
 
-  /**
-   * Inserts one or multiple records in the database.
-   * @param thing - The table name or the specific record ID to create.
-   * @param data - The document(s) / record(s) to insert.
-   */
-  insert<T extends PrettyRecord, U extends PrettyRecord = T>(thing: string, data?: U | U[]): Observable<ActionResult<T>[]>;
-  insert<T extends PrettyRecord, U extends PrettyRecord = T>(thing: RecordId, data?: U): Observable<ActionResult<T>>;
-  public insert<T extends PrettyRecord, U extends PrettyRecord = T>(thing: string & RecordId, data?: U | U[]) {
-    return from(this.db.insert<T, U>(thing, data));
+	/**
+	 * Inserts one or multiple records in the database.
+	 * @param table - The table name to insert into.
+	 * @param data - The document(s) / record(s) to insert.
+	 */
+  insert<T extends PrettyRecord, U extends PrettyRecord = T>(data?: U | U[]): Observable<ActionResult<T>[]>;
+  insert<T extends PrettyRecord, U extends PrettyRecord = T>(table: Table | string, data?: U): Observable<ActionResult<T>>;
+  public insert<T extends PrettyRecord, U extends PrettyRecord = T>(table: Table | string, data?: U | U[]) {
+    return !table ? from(this.db.insert<T, U>(data)) : from(this.db.insert<T, U>(table, data));
   }
+
+	/**
+	 * Inserts one or multiple records in the database.
+	 * @param thing - The table name or the specific record ID to create.
+	 * @param data - The document(s) / record(s) to insert.
+	 */
+    insertRelation<T extends PrettyRecord, U extends PrettyRecord = T>(data?: U | U[]): Observable<ActionResult<T>[]>;
+    insertRelation<T extends PrettyRecord, U extends PrettyRecord = T>(thing: Table | string, data?: U | U[]): Observable<ActionResult<T>[]>;
+    public insertRelation<T extends PrettyRecord, U extends PrettyRecord = T>(thing: Table | string, data?: U | U[]) {
+      return !thing ? from(this.db.insertRelation<T, U>(data)) : from(this.db.insertRelation<T, U>(thing, data));
+    }
 
   /**
    * Invalidates the authentication for the current connection.
@@ -108,39 +135,40 @@ export class SurrealService {
   }
 
   /**
-   * Kill a live query
+   * Kill a live query.
    * @param queryUuid - The query that you want to kill.
    */
   public kill(...args: Parameters<Surreal['kill']>) {
     return from(this.db.kill(...args));
   }
 
-  /**
-   * Specify a variable for the current socket connection.
-   * @param key - Specifies the name of the variable.
-   * @param val - Assigns the value to the variable name.
-   */
+	/**
+	 * Specify a variable for the current socket connection.
+	 * @param key - Specifies the name of the variable.
+	 * @param val - Assigns the value to the variable name.
+	 */
   public let(...args: Parameters<Surreal['let']>) {
     return from(this.db.let(...args));
   }
 
-  /**
-   * Start a live query and listen for the responses
-   * @param table - The table that you want to receive live results for.
-   * @param callback - Callback function that receives updates.
-   * @param diff - If set to true, will return a set of patches instead of complete records
-   */
-  public live<Result extends Record<string, unknown> | Patch = Record<string, unknown>>(...args: Parameters<Surreal['live']>): Observable<Uuid> {
-    return from(this.db.live<Result>(...args));
+	/**
+	 * Start a live select query and invoke the callback with responses.
+	 * @param table - The table that you want to receive live results for.
+	 * @param callback - Callback function that receives updates.
+	 * @param diff - If set to true, will return a set of patches instead of complete records.
+	 * @returns A unique subscription ID.
+	 */
+  public live<T extends Record<string, unknown> | Patch = Record<string, unknown>>(...args: Parameters<Surreal['live']>) {
+    return from(this.db.live<T>(...args));
   }
 
-  /**
-   * Modifies all records in a table, or a specific record, in the database.
-   *
-   * ***NOTE: This function merges the current document / record data with the specified data.***
-   * @param thing - The table name or the specific record ID to change.
-   * @param data - The document / record data to insert.
-   */
+	/**
+	 * Modifies all records in a table, or a specific record, in the database.
+	 *
+	 * ***NOTE: This function merges the current document / record data with the specified data.***
+	 * @param thing - The table name or the specific record ID to change.
+	 * @param data - The document / record data to insert.
+	 */
   merge<T extends PrettyRecord, U extends PrettyRecord = Partial<T>>(thing: string, data?: U): Observable<ActionResult<T>[]>;
   merge<T extends PrettyRecord, U extends PrettyRecord = Partial<T>>(thing: RecordId, data?: U): Observable<ActionResult<T>>;
   public merge<T extends PrettyRecord, U extends PrettyRecord = Partial<T>>(thing: string & RecordId, data?: U) {
@@ -163,14 +191,14 @@ export class SurrealService {
   }
 
   /**
-   * Ping SurrealDB instance
+   * Ping SurrealDB instance.
    */
   public ping() {
     return from(this.db.ping());
   }
 
   /**
-   * Runs a set of SurrealQL statements against the database.
+   * Runs a set of [SurrealQL statements](https://surrealdb.com/docs/surrealql) against the database.
    * @param query - Specifies the SurrealQL statements.
    * @param bindings - Assigns variables which can be used in the query.
    */
@@ -179,20 +207,27 @@ export class SurrealService {
   }
 
   /**
-   * Runs a set of SurrealQL statements against the database.
+   * Runs a set of [SurrealQL statements](https://surrealdb.com/docs/surrealql) against the database.
    * @param query - Specifies the SurrealQL statements.
    * @param bindings - Assigns variables which can be used in the query.
    */
-  public queryRaw<T extends unknown[]>(...args: Parameters<Surreal['query_raw']>) {
-    return from(this.db.query_raw<T>(...args));
+  public queryRaw<T extends unknown[]>(...args: Parameters<Surreal['queryRaw']>) {
+    return from(this.db.queryRaw<T>(...args));
   }
 
   /**
-   * Create an edge record between two records
-   * @param from - The in property on the edge record
-   * @param thing - The id of the edge record
-   * @param to - The out property on the edge record
-   * @param data - Optionally, provide a body for the edge record
+   * An observable which completes when the connection is ready.
+   */
+	public ready() {
+    return from(this.db.ready);
+  };
+
+  /**
+   * Create an edge record between two records.
+   * @param from - The in property on the edge record.
+   * @param thing - The id of the edge record.
+   * @param to - The out property on the edge record.
+   * @param data - Optionally, provide a body for the edge record.
    */
   relate<T extends PrettyRecord, U extends PrettyRecord = T>(from: string | RecordId | RecordId[], thing: string, to: string | RecordId | RecordId[], data?: U): Observable<T[]>;
   relate<T extends PrettyRecord, U extends PrettyRecord = T>(from: string | RecordId | RecordId[], thing: RecordId, to: string | RecordId | RecordId[], data?: U): Observable<T>;
@@ -201,14 +236,23 @@ export class SurrealService {
   }
 
   /**
-   * Run a SurrealQL function
-   * @param name - The full name of the function
+   * Send a raw message to the SurrealDB instance.
+   * @param method - Type of message to send.
+   * @param params - Parameters for the message.
+   */
+  public rpc<T>(...args: Parameters<Surreal['rpc']>) {
+    return from(this.db.rpc<T>(...args));
+  };
+
+  /**
+   * Run a SurrealQL function.
+   * @param name - The full name of the function.
    * @param args - The arguments supplied to the function. You can also supply a version here as a string, in which case the third argument becomes the parameter list.
    */
   run<T>(name: string, args?: unknown[]): Observable<T>;
   /**
-   * Run a SurrealQL function
-   * @param name - The full name of the function
+   * Run a SurrealQL function.
+   * @param name - The full name of the function.
    * @param version - The version of the function. If omitted, the second argument is the parameter list.
    * @param args - The arguments supplied to the function.
    */
@@ -220,12 +264,12 @@ export class SurrealService {
   }
 
   /**
-   * Selects all records in a table, or a specific record, from the database.
+   * Select all records in a table, or a specific record.
    * @param thing - The table name or a record ID to select.
    */
-  select<T extends PrettyRecord>(thing: string): Observable<ActionResult<T>[]>;
-  select<T extends PrettyRecord>(thing: RecordId): Observable<ActionResult<T>>;
-  public select<T extends PrettyRecord>(thing: string & RecordId) {
+  select<T extends PrettyRecord>(thing: RecordId): Observable<ActionResult<T>[]>;
+  select<T extends PrettyRecord>(thing: RecordIdRange | Table | string): Observable<ActionResult<T>>;
+  public select<T extends PrettyRecord>(thing: (RecordIdRange | Table | string) & RecordId) {
     return from(this.db.select<T>(thing));
   }
 
@@ -234,8 +278,8 @@ export class SurrealService {
    * @param vars - Variables used in a signin query.
    * @return The authentication token.
    */
-  public signin(vars: AnyAuth) {
-    return from(this.db.signin(vars));
+  public signin(...args: Parameters<Surreal['signin']>) {
+    return from(this.db.signin(...args));
   }
 
   /**
@@ -243,46 +287,60 @@ export class SurrealService {
    * @param vars - Variables used in a signup query.
    * @return The authentication token.
    */
-  public signup(vars: ScopeAuth) {
-    return from(this.db.signup(vars));
+  public signup(...args: Parameters<Surreal['signup']>) {
+    return from(this.db.signup(...args));
   }
 
   /**
-   * Listen for live query responses by it's uuid
-   * @param queryUuid - The LQ uuid that you want to receive live results for.
+   * Register a callback for a running live query.
+   * @param queryUuid - The live query UUID that you want to receive live results for.
    * @param callback - Callback function that receives updates.
    */
   public subscribeLive<Result extends Record<string, unknown> | Patch = Record<string, unknown>>(...args: Parameters<Surreal['subscribeLive']>) {
     return from(this.db.subscribeLive<Result>(...args));
   }
 
-  /**
-   * Stop listening for live query responses for a uuid
-   * @param queryUuid - The LQ uuid that you want to stop listening to.
-   */
-  public unsubscribeLive<Result extends Record<string, unknown> | Patch = Record<string, unknown>>(queryUuid: Uuid) {
-    return from(this.db.unSubscribeLive<Result>(queryUuid, () => void 0));
+	/**
+	 * Unsubscribe a callback from a live select query.
+	 * @param queryUuid - The unique ID of an existing live query you want to ubsubscribe from.
+	 * @param callback - The previously subscribed callback function.
+	 */
+  public unsubscribeLive<Result extends Record<string, unknown> | Patch = Record<string, unknown>>(...args: Parameters<Surreal['unSubscribeLive']>) {
+    return from(this.db.unSubscribeLive<Result>(...args));
   }
 
   /**
-   * Remove a variable from the current socket connection.
+   * Remove a parameter for the connection.
    * @param variable - Specifies the name of the variable.
    */
   public unset(...args: Parameters<Surreal['unset']>) {
     return from(this.db.unset(...args));
   }
 
+	/**
+	 * Updates all records in a table, or a specific record, in the database.
+	 *
+	 * ***NOTE: This function replaces the current document / record data with the specified data.***
+	 * @param thing - The table name or the specific record ID to update.
+	 * @param data - The document / record data to insert.
+	 */
+  update<T extends PrettyRecord, U extends PrettyRecord = T>(thing: RecordId, data?: U): Observable<ActionResult<T>[]>;
+  update<T extends PrettyRecord, U extends PrettyRecord = T>(thing: RecordIdRange | Table | string, data?: U): Observable<ActionResult<T>>;
+  public update<T extends PrettyRecord, U extends PrettyRecord = T>(thing: (RecordIdRange | Table | string) & RecordId, data?: U) {
+    return from(this.db.update<T, U>(thing, data));
+  }
+
   /**
-   * Updates all records in a table, or a specific record, in the database.
+   * Upserts all records in a table, or a specific record, in the database.
    *
    * ***NOTE: This function replaces the current document / record data with the specified data.***
-   * @param thing - The table name or the specific record ID to update.
+   * @param thing - The table name or the specific record ID to upsert.
    * @param data - The document / record data to insert.
    */
-  update<T extends PrettyRecord, U extends PrettyRecord = T>(thing: string, data?: U): Observable<ActionResult<T>[]>;
-  update<T extends PrettyRecord, U extends PrettyRecord = T>(thing: RecordId, data?: U): Observable<ActionResult<T>>;
-  public update<T extends PrettyRecord, U extends PrettyRecord = T>(thing: string & RecordId, data?: U) {
-    return from(this.db.update<T, U>(thing, data));
+  upsert<T extends PrettyRecord, U extends PrettyRecord = T>(thing: RecordId, data?: U): Observable<ActionResult<T>>;
+  upsert<T extends PrettyRecord, U extends PrettyRecord = T>(thing: RecordIdRange | Table | string, data?: U): Observable<ActionResult<T>[]>;
+  public upsert<T extends PrettyRecord, U extends PrettyRecord = T>(thing: (RecordIdRange | Table | string) & RecordId, data?: U) {
+    return from(this.db.upsert<T, U>(thing, data));
   }
 
   /**
@@ -294,9 +352,10 @@ export class SurrealService {
     return from(this.db.use(options));
   }
 
-  /**
-   * Obtain the version of the SurrealDB instance
-   */
+	/**
+	 * Obtain the version of the SurrealDB instance
+	 * @example `surrealdb-2.1.0`
+	 */
   public version() {
     return from(this.db.version());
   }

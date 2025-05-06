@@ -170,7 +170,7 @@ export class ExampleComponent implements OnInit {
 }
 ```
 
-See for more examples and all available methods the [SurrealDB JavaScript SDK](https://surrealdb.com/docs/sdk/javascript/core).
+See for more examples and all available methods the [SurrealDB JavaScript SDK](https://surrealdb.com/docs/sdk/javascript/methods).
 
 ## Links
 

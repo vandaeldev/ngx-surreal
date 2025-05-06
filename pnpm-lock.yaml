@@ -8,59 +8,39 @@ importers:
 
   .:
     dependencies:
-      '@angular/common':
-        specifier: ^18.0.0
-        version: 18.2.4(@angular/core@18.2.4(rxjs@7.8.1)(zone.js@0.14.10))(rxjs@7.8.1)
-      '@angular/core':
-        specifier: ^18.0.0
-        version: 18.2.4(rxjs@7.8.1)(zone.js@0.14.10)
       surrealdb:
-        specifier: ^1.0.0
-        version: 1.0.0(tslib@2.7.0)(typescript@5.6.2)(ws@8.18.0)
+        specifier: ^1.3.2
+        version: 1.3.2(tslib@2.8.1)(typescript@5.8.3)(ws@8.18.2)
       tslib:
-        specifier: ^2.7.0
-        version: 2.7.0
+        specifier: ^2.8.1
+        version: 2.8.1
     devDependencies:
       rxjs:
-        specifier: ^7.8.1
-        version: 7.8.1
+        specifier: ^7.8.2
+        version: 7.8.2
 
 packages:
 
-  '@angular/common@18.2.4':
-    resolution: {integrity: sha512-flUaKhdr8KvtjH0cLC6Rrjirt8GsiFlrmZLZplr784O3Gkei2VBBNFoopgmlEzbVGPiIG5QlFZH9yvah6JPQZw==}
-    engines: {node: ^18.19.1 || ^20.11.1 || >=22.0.0}
-    peerDependencies:
-      '@angular/core': 18.2.4
-      rxjs: ^6.5.3 || ^7.4.0
-
-  '@angular/core@18.2.4':
-    resolution: {integrity: sha512-ulYmYpI/ZVQ5BL38rBy4DS/9wgGWmVD9Uo6tcrLqCzt1G1G2nKwseZv009536pHfk6dj2HdPSkpcerhWh57DWw==}
-    engines: {node: ^18.19.1 || ^20.11.1 || >=22.0.0}
-    peerDependencies:
-      rxjs: ^6.5.3 || ^7.4.0
-      zone.js: ~0.14.10
-
-  isows@1.0.4:
-    resolution: {integrity: sha512-hEzjY+x9u9hPmBom9IIAqdJCwNLax+xrPb51vEPpERoFlIxgmZcHzsT5jKG06nvInKOBGvReAVz80Umed5CczQ==}
+  isows@1.0.6:
+    resolution: {integrity: sha512-lPHCayd40oW98/I0uvgaHKWCSvkzY27LjWLbtzOm64yQ+G3Q5npjjbdppU65iZXkK1Zt+kH9pfegli0AYfwYYw==}
     peerDependencies:
       ws: '*'
 
-  rxjs@7.8.1:
-    resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
+  rxjs@7.8.2:
+    resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
 
-  surrealdb@1.0.0:
-    resolution: {integrity: sha512-xpXwUG56feMjMSSNMTnGb20Qc0GLHt3Nxwop33N9w7kAtAQMT/sHLnTxzPcAVKAkjIe0oTSPiBfuO2uxplN4jw==}
+  surrealdb@1.3.2:
+    resolution: {integrity: sha512-mL7nij33iuon3IQP72F46fgX3p2LAxFCWCBDbZB7IohZ13RTEwJVNq7nZeP1eMSceQUpKzS6OHIWOuF9LYAkNw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       tslib: ^2.6.3
       typescript: ^5.0.0
 
-  tslib@2.7.0:
-    resolution: {integrity: sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==}
+  tslib@2.8.1:
+    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  typescript@5.6.2:
-    resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
+  typescript@5.8.3:
+    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -68,8 +48,8 @@ packages:
     resolution: {integrity: sha512-8JQkH4ooXnm1JCIhqTMbtmdnYEn6oKukBxHn1Ic9878jMkL7daTI7anTExfY18VRCX7tcdn5quzvCb6EWrR8PA==}
     hasBin: true
 
-  ws@8.18.0:
-    resolution: {integrity: sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==}
+  ws@8.18.2:
+    resolution: {integrity: sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -80,46 +60,29 @@ packages:
       utf-8-validate:
         optional: true
 
-  zone.js@0.14.10:
-    resolution: {integrity: sha512-YGAhaO7J5ywOXW6InXNlLmfU194F8lVgu7bRntUF3TiG8Y3nBK0x1UJJuHUP/e8IyihkjCYqhCScpSwnlaSRkQ==}
-
 snapshots:
 
-  '@angular/common@18.2.4(@angular/core@18.2.4(rxjs@7.8.1)(zone.js@0.14.10))(rxjs@7.8.1)':
+  isows@1.0.6(ws@8.18.2):
     dependencies:
-      '@angular/core': 18.2.4(rxjs@7.8.1)(zone.js@0.14.10)
-      rxjs: 7.8.1
-      tslib: 2.7.0
+      ws: 8.18.2
 
-  '@angular/core@18.2.4(rxjs@7.8.1)(zone.js@0.14.10)':
+  rxjs@7.8.2:
     dependencies:
-      rxjs: 7.8.1
-      tslib: 2.7.0
-      zone.js: 0.14.10
+      tslib: 2.8.1
 
-  isows@1.0.4(ws@8.18.0):
+  surrealdb@1.3.2(tslib@2.8.1)(typescript@5.8.3)(ws@8.18.2):
     dependencies:
-      ws: 8.18.0
-
-  rxjs@7.8.1:
-    dependencies:
-      tslib: 2.7.0
-
-  surrealdb@1.0.0(tslib@2.7.0)(typescript@5.6.2)(ws@8.18.0):
-    dependencies:
-      isows: 1.0.4(ws@8.18.0)
-      tslib: 2.7.0
-      typescript: 5.6.2
+      isows: 1.0.6(ws@8.18.2)
+      tslib: 2.8.1
+      typescript: 5.8.3
       uuidv7: 1.0.2
     transitivePeerDependencies:
       - ws
 
-  tslib@2.7.0: {}
+  tslib@2.8.1: {}
 
-  typescript@5.6.2: {}
+  typescript@5.8.3: {}
 
   uuidv7@1.0.2: {}
 
-  ws@8.18.0: {}
-
-  zone.js@0.14.10: {}
+  ws@8.18.2: {}
